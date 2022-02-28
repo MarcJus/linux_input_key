@@ -13,8 +13,7 @@ int send_event_msc(int keyboard_fd){
 
 	int bytes_written = write(keyboard_fd, &event, sizeof(event));
 	if(bytes_written < 0){
-		perror("Erreur write ");
-		exit(EXIT_FAILURE);
+		return bytes_written;
 	}
 
 	return 0;
@@ -29,8 +28,7 @@ int send_event_report(int keyboard_fd){
 
 	int bytes_written = write(keyboard_fd, &event, sizeof(event));
 	if(bytes_written < 0){
-		perror("Erreur write ");
-		exit(EXIT_FAILURE);
+		return bytes_written;
 	}
 	// printf("event report\n");
 	return 0;
@@ -44,7 +42,10 @@ int send_key(ushort key)
 		return keyboard_fd; // ! Erreur
 	}
 
-	send_event_msc(keyboard_fd);
+	int error_code = send_event_msc(keyboard_fd);
+	if(error_code < 0){
+		return error_code;
+	}
 
 	struct input_event event;
 	event.type = EV_KEY;
@@ -56,11 +57,17 @@ int send_key(ushort key)
 		return bytes_written;
 	}
 	
-	send_event_report(keyboard_fd);
+	error_code = send_event_report(keyboard_fd);
+	if(error_code < 0){
+		return error_code;
+	}
 
-	send_event_msc(keyboard_fd);
+	error_code = send_event_msc(keyboard_fd);
+	if(error_code < 0){
+		return error_code;
+	}
 
-	event.type = EV_KEY;
+	event.type = EV_KEY; // 1
 	event.value = 0;
 	event.code = key;
 
@@ -69,7 +76,10 @@ int send_key(ushort key)
 		return bytes_written;
 	}
 	
-	send_event_report(keyboard_fd);
+	error_code = send_event_report(keyboard_fd);
+	if(error_code < 0){
+		return error_code;
+	}
 
 	return 0;
 }
