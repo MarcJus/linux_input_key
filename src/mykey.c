@@ -7,8 +7,8 @@
 int send_event_msc(int keyboard_fd){
 
 	struct input_event event;
-	event.type = EV_MSC;
-	event.code = MSC_SCAN;
+	event.type = EV_MSC; // 4
+	event.code = MSC_SCAN; // 4
 	event.value = 0x7000a; // ! Au hasard
 
 	int bytes_written = write(keyboard_fd, &event, sizeof(event));
@@ -16,7 +16,6 @@ int send_event_msc(int keyboard_fd){
 		perror("Erreur write ");
 		exit(EXIT_FAILURE);
 	}
-	// printf("event msc\n");
 
 	return 0;
 }
@@ -24,8 +23,8 @@ int send_event_msc(int keyboard_fd){
 int send_event_report(int keyboard_fd){
 
 	struct input_event event;
-	event.type = EV_SYN;
-	event.code = SYN_REPORT;
+	event.type = EV_SYN; // 0
+	event.code = SYN_REPORT; // 0
 	event.value = 0;
 
 	int bytes_written = write(keyboard_fd, &event, sizeof(event));
