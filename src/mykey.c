@@ -34,12 +34,21 @@ int send_event_report(int keyboard_fd){
 	return 0;
 }
 
-int send_key(ushort key)
-{
+int open_keyboard_fd(){
 	const char *keyboard_path = "/dev/input/event2";
 	int keyboard_fd = open(keyboard_path, O_RDWR);
-	if(keyboard_path < 0){
+	if(keyboard_fd < 0){
 		return keyboard_fd; // ! Erreur
+	}
+	
+	return keyboard_fd;
+}
+
+int send_unique_key(ushort key)
+{
+	int keyboard_fd = open_keyboard_fd();
+	if(keyboard_fd < 0){
+		return keyboard_fd;
 	}
 
 	int error_code = send_event_msc(keyboard_fd);
@@ -82,4 +91,8 @@ int send_key(ushort key)
 	}
 
 	return 0;
+}
+
+int send_repeat_key(ushort key){
+
 }
