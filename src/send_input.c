@@ -4,6 +4,21 @@
 #include <unistd.h>
 #include <linux/input.h>
 
+typedef struct {
+	/**
+	 * @brief Touche à entrer, définie dans input-event-code.h
+	 * 
+	 */
+	ushort key;
+
+	/**
+	 * @brief Indique si la touche doit etre enfoncée ou non.
+	 * 0 si elle est levée, 1 si elle est enfoncée
+	 * 
+	 */
+	int active;
+} InputDescriptor;
+
 int send_event_msc(int keyboard_fd){
 
 	struct input_event event;
