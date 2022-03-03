@@ -1,5 +1,5 @@
-#ifndef MYKEY_H
-#define MYKEY_H
+#ifndef SEND_INPUT
+#define SEND_INPUT
 
 #include <stdlib.h>
 
@@ -13,4 +13,4 @@ int send_unique_key(ushort key);
 
 int send_repeat_key(ushort key);
 
-#endif //MYKEY_H
+#endif //SEND_INPUT

@@ -5,7 +5,7 @@
 #include <linux/input.h>
 #include <linux/joystick.h>
 
-#include "mykey.h"
+#include "send_input.h"
 
 int main(int argc, char const *argv[]){
 
