@@ -128,6 +128,6 @@ int send_unique_key(ushort key)
 	return 0;
 }
 
-int send_repeat_key(ushort key){
+int send_repeat_key(InputDescriptor *descriptor){
 	
 }
