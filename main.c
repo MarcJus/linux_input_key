@@ -10,9 +10,9 @@
 int main(int argc, char const *argv[]){
 
 
-	send_key(KEY_L);
-	send_key(KEY_L);
-	send_key(KEY_ENTER);
-	send_key(KEY_ENTER);
+	send_unique_key(KEY_L);
+	send_unique_key(KEY_L);
+	send_unique_key(KEY_ENTER);
+	send_unique_key(KEY_ENTER);
 	return 0;
 }

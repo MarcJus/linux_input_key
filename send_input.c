@@ -4,7 +4,10 @@
 #include <unistd.h>
 #include <linux/input.h>
 
-typedef struct {
+#define SEND_EVENT_REPORT(fd) send_input_event(fd, EV_SYN, SYN_REPORT, 0);
+#define SEND_EVENT_MSC(fd) send_input_event(fd, EV_MSC, MSC_SCAN, 0x7000a); // ! Valeur 0x7000a au hasard !
+
+typedef struct InputDescriptor{
 	/**
 	 * @brief Touche à entrer, définie dans input-event-code.h
 	 * 
@@ -19,36 +22,6 @@ typedef struct {
 	int active;
 } InputDescriptor;
 
-int send_event_msc(int keyboard_fd){
-
-	struct input_event event;
-	event.type = EV_MSC; // 4
-	event.code = MSC_SCAN; // 4
-	event.value = 0x7000a; // ! Au hasard
-
-	int bytes_written = write(keyboard_fd, &event, sizeof(event));
-	if(bytes_written < 0){
-		return bytes_written;
-	}
-
-	return 0;
-}
-
-int send_event_report(int keyboard_fd){
-
-	struct input_event event;
-	event.type = EV_SYN; // 0
-	event.code = SYN_REPORT; // 0
-	event.value = 0;
-
-	int bytes_written = write(keyboard_fd, &event, sizeof(event));
-	if(bytes_written < 0){
-		return bytes_written;
-	}
-	// printf("event report\n");
-	return 0;
-}
-
 int send_input_event(int fd, int type, int code, int value){
 	struct input_event event = {
 		type,
@@ -60,6 +33,8 @@ int send_input_event(int fd, int type, int code, int value){
 	if(bytes_written < 0){
 		return bytes_written;
 	}
+
+	return 0;
 }
 
 int open_keyboard_fd(){
@@ -81,7 +56,8 @@ int send_unique_key(ushort key)
 	}
 
 	// Envoi de l'événement type 4 code 4
-	int error_code = send_event_msc(keyboard_fd);
+	// int error_code = send_event_msc(keyboard_fd);
+	int error_code = SEND_EVENT_MSC(keyboard_fd);
 	if(error_code < 0){
 		return error_code;
 	}
@@ -98,13 +74,15 @@ int send_unique_key(ushort key)
 	}
 	
 	// Envoi de l'événement type 0 code 0
-	error_code = send_event_report(keyboard_fd);
+	// error_code = send_event_report(keyboard_fd);
+	error_code = SEND_EVENT_REPORT(keyboard_fd);
 	if(error_code < 0){
 		return error_code;
 	}
 
 	// Envoi de l'événement type 4 code 4
-	error_code = send_event_msc(keyboard_fd);
+	// error_code = send_event_msc(keyboard_fd);
+	error_code = SEND_EVENT_MSC(keyboard_fd);
 	if(error_code < 0){
 		return error_code;
 	}
@@ -120,7 +98,8 @@ int send_unique_key(ushort key)
 	}
 	
 	// Envoi de l'événement type 0 code 0
-	error_code = send_event_report(keyboard_fd);
+	// error_code = send_event_report(keyboard_fd);
+	error_code = SEND_EVENT_REPORT(keyboard_fd);
 	if(error_code < 0){
 		return error_code;
 	}
@@ -130,4 +109,16 @@ int send_unique_key(ushort key)
 
 int send_repeat_key(InputDescriptor *descriptor){
 	
+	// Ouverture du fichier /dev/input/event2
+	int keyboard_fd = open_keyboard_fd();
+	if(keyboard_fd < 0){
+		return keyboard_fd;
+	}
+
+	
+
+	if(descriptor->active == 1){
+
+	}
+
 }
