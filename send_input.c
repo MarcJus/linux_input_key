@@ -1,27 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <linux/input.h>
+#include <pthread.h>
 
-#define SEND_EVENT_REPORT(fd) send_input_event(fd, EV_SYN, SYN_REPORT, 0);
-#define SEND_EVENT_MSC(fd) send_input_event(fd, EV_MSC, MSC_SCAN, 0x7000a); // ! Valeur 0x7000a au hasard !
-#define CHECK_WRITE_RETURN_VALUE(bytes_written) if(bytes_written < 0) return bytes_written;
-
-typedef struct InputDescriptor{
-	/**
-	 * @brief Touche à entrer, définie dans input-event-code.h
-	 * 
-	 */
-	ushort key;
-
-	/**
-	 * @brief Indique si la touche doit etre enfoncée ou non.
-	 * 0 si elle est levée, 1 si elle est enfoncée
-	 * 
-	 */
-	int active;
-} InputDescriptor;
+#include "send_input.h"
 
 int send_input_event(int fd, int type, int code, int value){
 	struct input_event event = {
@@ -68,7 +49,7 @@ int send_unique_key(ushort key)
 	CHECK_WRITE_RETURN_VALUE(bytes_written);
 	
 	// Envoi de l'événement type 0 code 0
-	error_code = SEND_EVENT_REPORT(keyboard_fd);
+	error_code = SEND_EVENT_REPORT(keyboard_fd, 0);
 	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	// Envoi de l'événement type 4 code 4
@@ -84,7 +65,7 @@ int send_unique_key(ushort key)
 	CHECK_WRITE_RETURN_VALUE(bytes_written);
 	
 	// Envoi de l'événement type 0 code 0
-	error_code = SEND_EVENT_REPORT(keyboard_fd);
+	error_code = SEND_EVENT_REPORT(keyboard_fd, 0);
 	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	return 0;
@@ -98,9 +79,16 @@ int send_repeat_key(InputDescriptor *descriptor){
 		return keyboard_fd;
 	}
 
-	
+	int bytes_written;
+	bytes_written = SEND_EVENT_MSC(keyboard_fd);
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 
 	if(descriptor->active == 1){
+		bytes_written = SEND_EVENT_TYPE(keyboard_fd, descriptor->key, 1);
+		CHECK_WRITE_RETURN_VALUE(bytes_written);
+
+		bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
+		CHECK_WRITE_RETURN_VALUE(bytes_written);
 
 	}
 
