@@ -6,6 +6,7 @@
 
 #define SEND_EVENT_REPORT(fd) send_input_event(fd, EV_SYN, SYN_REPORT, 0);
 #define SEND_EVENT_MSC(fd) send_input_event(fd, EV_MSC, MSC_SCAN, 0x7000a); // ! Valeur 0x7000a au hasard !
+#define CHECK_WRITE_RETURN_VALUE(bytes_written) if(bytes_written < 0) return bytes_written;
 
 typedef struct InputDescriptor{
 	/**
@@ -30,9 +31,7 @@ int send_input_event(int fd, int type, int code, int value){
 	};
 
 	int bytes_written = write(fd, &event, sizeof(event));
-	if(bytes_written < 0){
-		return bytes_written;
-	}
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 
 	return 0;
 }
@@ -56,11 +55,8 @@ int send_unique_key(ushort key)
 	}
 
 	// Envoi de l'événement type 4 code 4
-	// int error_code = send_event_msc(keyboard_fd);
 	int error_code = SEND_EVENT_MSC(keyboard_fd);
-	if(error_code < 0){
-		return error_code;
-	}
+	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	// Envoie de l'événement touche appuyée
 	struct input_event event;
@@ -69,23 +65,15 @@ int send_unique_key(ushort key)
 	event.code = key;
 
 	int bytes_written = write(keyboard_fd, &event, sizeof(event));
-	if(bytes_written < 0){
-		return bytes_written;
-	}
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 	
 	// Envoi de l'événement type 0 code 0
-	// error_code = send_event_report(keyboard_fd);
 	error_code = SEND_EVENT_REPORT(keyboard_fd);
-	if(error_code < 0){
-		return error_code;
-	}
+	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	// Envoi de l'événement type 4 code 4
-	// error_code = send_event_msc(keyboard_fd);
 	error_code = SEND_EVENT_MSC(keyboard_fd);
-	if(error_code < 0){
-		return error_code;
-	}
+	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	// Envoi de l'événement touche relachée
 	event.type = EV_KEY; // 1
@@ -93,16 +81,11 @@ int send_unique_key(ushort key)
 	event.code = key;
 
 	bytes_written = write(keyboard_fd, &event, sizeof(event));
-	if(bytes_written < 0){
-		return bytes_written;
-	}
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 	
 	// Envoi de l'événement type 0 code 0
-	// error_code = send_event_report(keyboard_fd);
 	error_code = SEND_EVENT_REPORT(keyboard_fd);
-	if(error_code < 0){
-		return error_code;
-	}
+	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	return 0;
 }
