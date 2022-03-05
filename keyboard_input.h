@@ -28,6 +28,11 @@ typedef struct InputDescriptor{
 	pthread_t *function_thread;
 } InputDescriptor;
 
+
+/**
+ * @brief Utilisé pour le thread
+ * 
+ */
 typedef struct RepeatKeyArguments{
 
 	int fd;
@@ -44,10 +49,19 @@ typedef struct RepeatKeyArguments{
  */
 int send_unique_key(int key);
 
-int send_repeat_key(InputDescriptor *descriptor);
+/**
+ * @brief Appelée pour simuler une touche maintenue enfoncée mais aussi pour la lacher
+ * @deprecated
+ * @param descriptor Contient la touche, si elle est appuyée ou non et le thread qui envoie la touche au pc
+ * @return int -1 en cas d'erreur
+ */
 
 void *thread_send_repeat_key(void *args);
 
 int open_keyboard_fd();
+
+int start_repeated_key(int keyboard_fd, int key, pthread_t *thread);
+
+int stop_repeated_key(int keyboard_fd,int key, pthread_t *thread);
 
 #endif //SEND_INPUT

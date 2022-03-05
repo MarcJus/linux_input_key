@@ -49,43 +49,37 @@ int send_unique_key(int key)
 	return 0;
 }
 
-int send_repeat_key(InputDescriptor *descriptor){
-	
-	// Ouverture du fichier /dev/input/event2
-	int keyboard_fd = open_keyboard_fd();
-	if(keyboard_fd < 0){
-		return keyboard_fd;
-	}
+int start_repeated_key(int keyboard_fd, int key, pthread_t *thread){
 
-	int bytes_written;
+	int bytes_written = 0;
 
-	if(descriptor->active == 1){
-		printf("active = 1\n");
-		bytes_written = SEND_EVENT_KEY(keyboard_fd, descriptor->key, 1);
-		CHECK_WRITE_RETURN_VALUE(bytes_written);
+	bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 1);
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 
-		bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
-		CHECK_WRITE_RETURN_VALUE(bytes_written);
+	bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 
-		pthread_t *thread = descriptor->function_thread;
-		RepeatKeyArguments args = {
-			keyboard_fd, descriptor->key
-		};
-		pthread_create(thread, NULL, thread_send_repeat_key, &args);
+	RepeatKeyArguments args = {
+		keyboard_fd, key
+	};
+	pthread_create(thread, NULL, thread_send_repeat_key, &args);
 
-	}
-	if(descriptor->active == 0){
-		printf("active = 0\n");
-		pthread_t *thread = descriptor->function_thread;
-		pthread_cancel(*thread);
+	return 0;
+}
 
-		bytes_written = SEND_EVENT_KEY(keyboard_fd, descriptor->key, 0);
-		CHECK_WRITE_RETURN_VALUE(bytes_written);
+int stop_repeated_key(int keyboard_fd, int key, pthread_t *thread){
 
-		bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
-		CHECK_WRITE_RETURN_VALUE(bytes_written);
-	}
+	int bytes_written = 0;
 
+	pthread_cancel(*thread);
+
+	bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 0);
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
+
+	bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
+
+	return 0;
 }
 
 /**
@@ -98,22 +92,19 @@ int send_repeat_key(InputDescriptor *descriptor){
 void *thread_send_repeat_key(void *args){
 	
 	while(1){
-		// RepeatKeyArguments repeatKeyArguments = *(RepeatKeyArguments *)args;
-		// int keyboard_fd = repeatKeyArguments.fd;
+		RepeatKeyArguments repeatKeyArguments = *(RepeatKeyArguments *)args;
+		int keyboard_fd = repeatKeyArguments.fd;
 		
-		// int bytes_written;
-		// bytes_written = SEND_EVENT_TYPE(keyboard_fd, repeatKeyArguments.key, 2);
-		// if(bytes_written < 1){
-		// 	pthread_exit(NULL);
-		// }
+		int bytes_written;
+		bytes_written = SEND_EVENT_KEY(keyboard_fd, repeatKeyArguments.key, 2);
+		if(bytes_written < 1){
+			pthread_exit(NULL);
+		}
 
-		// bytes_written  = SEND_EVENT_REPORT(keyboard_fd, 1);
-		// if(bytes_written < 1){
-		// 	pthread_exit(NULL);
-		// }
-
-		// printf("write");
-		// sleep(1);
+		bytes_written  = SEND_EVENT_REPORT(keyboard_fd, 1);
+		if(bytes_written < 1){
+			pthread_exit(NULL);
+		}
 
 	}
 }
