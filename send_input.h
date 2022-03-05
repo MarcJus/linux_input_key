@@ -17,7 +17,7 @@ typedef struct InputDescriptor{
 	 * @brief Touche à entrer, définie dans input-event-code.h
 	 * 
 	 */
-	ushort key;
+	int key;
 
 	/**
 	 * @brief Indique si la touche doit etre enfoncée ou non.
@@ -31,7 +31,7 @@ typedef struct RepeatKeyArguments{
 
 	int fd;
 
-	ushort key;
+	int key;
 
 } RepeatKeyArguments;
 
@@ -41,7 +41,7 @@ typedef struct RepeatKeyArguments{
  * @param key Identifiant de la touche, définie dans linux/input-event-codes.h
  * @return int 0 si la touche a été envoyée, -1 en cas d'erreur
  */
-int send_unique_key(ushort key);
+int send_unique_key(int key);
 
 int send_repeat_key(InputDescriptor *descriptor);
 

@@ -27,7 +27,7 @@ int open_keyboard_fd(){
 	return keyboard_fd;
 }
 
-int send_unique_key(ushort key)
+int send_unique_key(int key)
 {
 	// Ouverture du fichier /dev/input/event2
 	int keyboard_fd = open_keyboard_fd();
@@ -35,13 +35,21 @@ int send_unique_key(ushort key)
 		return keyboard_fd;
 	}
 
+	int bytes_written, error_code;
+	struct input_event event;
+
 	// Envoi de l'événement type 4 code 4
-	int error_code = SEND_EVENT_MSC(keyboard_fd);
+	error_code = SEND_EVENT_MSC(keyboard_fd);
 	CHECK_WRITE_RETURN_VALUE(error_code);
 
-	// Envoie de l'événement touche appuyée
-	int bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 1);
-	CHECK_WRITE_RETURN_VALUE(bytes_written);
+	// Envoi de l'événement touche appuyée
+	// bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 1);
+	// CHECK_WRITE_RETURN_VALUE(bytes_written);
+	
+	bytes_written = send_input_event(keyboard_fd, 1, key, 1);
+	if(bytes_written < 0){
+		return bytes_written;
+	}
 	
 	// Envoi de l'événement type 0 code 0
 	error_code = SEND_EVENT_REPORT(keyboard_fd, 0);
@@ -52,8 +60,16 @@ int send_unique_key(ushort key)
 	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	// Envoi de l'événement touche relachée
-	bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 0);
-	CHECK_WRITE_RETURN_VALUE(bytes_written);
+	// bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 0);
+	// CHECK_WRITE_RETURN_VALUE(bytes_written);
+	event.type = 1;
+	event.code = key;
+	event.value = 0;
+
+	bytes_written = write(keyboard_fd, &event, sizeof(event));
+	if(bytes_written < 0){
+		return bytes_written;
+	}
 	
 	// Envoi de l'événement type 0 code 0
 	error_code = SEND_EVENT_REPORT(keyboard_fd, 0);
