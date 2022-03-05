@@ -2,26 +2,11 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "send_input.h"
-
-int send_input_event(int fd, int type, int code, int value){
-	struct input_event event;
-	event.type = type;
-	event.code = code;
-	event.value = value;
-
-	int bytes_written = write(fd, &event, sizeof(event));
-	CHECK_WRITE_RETURN_VALUE(bytes_written);
-
-	return 0;
-}
+#include "keyboard_input.h"
 
 int open_keyboard_fd(){
 	const char *keyboard_path = "/dev/input/event2";
 	int keyboard_fd = open(keyboard_path, O_RDWR);
-	if(keyboard_fd < 0){
-		return keyboard_fd; // ! Erreur
-	}
 	
 	return keyboard_fd;
 }
