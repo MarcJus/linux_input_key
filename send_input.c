@@ -73,29 +73,33 @@ int send_repeat_key(InputDescriptor *descriptor){
 	}
 
 	int bytes_written;
-	bytes_written = SEND_EVENT_MSC(keyboard_fd);
-	CHECK_WRITE_RETURN_VALUE(bytes_written);
 
-	bytes_written = SEND_EVENT_KEY(keyboard_fd, descriptor->key, 1);
-	CHECK_WRITE_RETURN_VALUE(bytes_written);
+	if(descriptor->active == 1){
+		printf("active = 1\n");
+		bytes_written = SEND_EVENT_KEY(keyboard_fd, descriptor->key, 1);
+		CHECK_WRITE_RETURN_VALUE(bytes_written);
 
-	bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
-	CHECK_WRITE_RETURN_VALUE(bytes_written);
+		bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
+		CHECK_WRITE_RETURN_VALUE(bytes_written);
 
-	// if(descriptor->active == 1){
-	// 	bytes_written = SEND_EVENT_TYPE(keyboard_fd, descriptor->key, 1);
-	// 	CHECK_WRITE_RETURN_VALUE(bytes_written);
+		pthread_t *thread = descriptor->function_thread;
+		RepeatKeyArguments args = {
+			keyboard_fd, descriptor->key
+		};
+		pthread_create(thread, NULL, thread_send_repeat_key, &args);
 
-	// 	bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
-	// 	CHECK_WRITE_RETURN_VALUE(bytes_written);
+	}
+	if(descriptor->active == 0){
+		printf("active = 0\n");
+		pthread_t *thread = descriptor->function_thread;
+		pthread_cancel(*thread);
 
-	// 	pthread_t thread;
-	// 	RepeatKeyArguments args = {
-	// 		keyboard_fd, descriptor->key
-	// 	};
-	// 	int thread_created = pthread_create(&thread, NULL, thread_send_repeat_key, &args);
+		bytes_written = SEND_EVENT_KEY(keyboard_fd, descriptor->key, 0);
+		CHECK_WRITE_RETURN_VALUE(bytes_written);
 
-	// }
+		bytes_written = SEND_EVENT_REPORT(keyboard_fd, 0);
+		CHECK_WRITE_RETURN_VALUE(bytes_written);
+	}
 
 }
 

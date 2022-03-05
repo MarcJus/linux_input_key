@@ -7,33 +7,15 @@
 
 int main(int argc, char const *argv[]){
 
-	int error_code;
+	pthread_t thread;
+	InputDescriptor descriptor = {
+		KEY_G, 1, &thread
+	};
+	send_repeat_key(&descriptor);
 
-	error_code = send_unique_key(KEY_L);
-	if(error_code < 0){
-		perror("Erreur 1er L");
-		return -1;
-	}
-	error_code = send_unique_key(KEY_L);
-	if(error_code < 0){
-		perror("Erreur 2e L");
-		return -1;
-	}
-	error_code = send_unique_key(KEY_ENTER);
-	if(error_code < 0){
-		perror("Erreur 1er enter");
-		return -1;
-	}
-	error_code = send_unique_key(KEY_ENTER);
-	if(error_code < 0){
-		perror("Erreur 2e enter");
-		return -1;
-	}
+	sleep(3);
 
-	printf("C'est bon\n");
-
-	// int fd = open_keyboard_fd();
-	// CHECK_WRITE_RETURN_VALUE(fd);
-	// send_unique_key(KEY_L);
+	descriptor.active = 0;
+	send_repeat_key(&descriptor);
 	return 0;
 }

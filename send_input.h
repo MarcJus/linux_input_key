@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/input.h>
+#include <pthread.h>
 
 #define SEND_EVENT_REPORT(fd, value) send_input_event(fd, EV_SYN, SYN_REPORT, value);
 #define SEND_EVENT_MSC(fd) send_input_event(fd, EV_MSC, MSC_SCAN, 0x7000a); // ! Valeur 0x7000a au hasard !
@@ -25,6 +26,12 @@ typedef struct InputDescriptor{
 	 * 
 	 */
 	int active;
+
+	/**
+	 * @brief Thread de la fonction qui envoie la répétition de la touche. Cela permet de l'arrêter
+	 * 
+	 */
+	pthread_t *function_thread;
 } InputDescriptor;
 
 typedef struct RepeatKeyArguments{
