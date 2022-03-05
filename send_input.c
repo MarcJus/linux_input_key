@@ -5,11 +5,10 @@
 #include "send_input.h"
 
 int send_input_event(int fd, int type, int code, int value){
-	struct input_event event = {
-		type,
-		code,
-		value
-	};
+	struct input_event event;
+	event.type = type;
+	event.code = code;
+	event.value = value;
 
 	int bytes_written = write(fd, &event, sizeof(event));
 	CHECK_WRITE_RETURN_VALUE(bytes_written);
@@ -43,13 +42,8 @@ int send_unique_key(int key)
 	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	// Envoi de l'événement touche appuyée
-	// bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 1);
-	// CHECK_WRITE_RETURN_VALUE(bytes_written);
-	
-	bytes_written = send_input_event(keyboard_fd, 1, key, 1);
-	if(bytes_written < 0){
-		return bytes_written;
-	}
+	bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 1);
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 	
 	// Envoi de l'événement type 0 code 0
 	error_code = SEND_EVENT_REPORT(keyboard_fd, 0);
@@ -60,16 +54,8 @@ int send_unique_key(int key)
 	CHECK_WRITE_RETURN_VALUE(error_code);
 
 	// Envoi de l'événement touche relachée
-	// bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 0);
-	// CHECK_WRITE_RETURN_VALUE(bytes_written);
-	event.type = 1;
-	event.code = key;
-	event.value = 0;
-
-	bytes_written = write(keyboard_fd, &event, sizeof(event));
-	if(bytes_written < 0){
-		return bytes_written;
-	}
+	bytes_written = SEND_EVENT_KEY(keyboard_fd, key, 0);
+	CHECK_WRITE_RETURN_VALUE(bytes_written);
 	
 	// Envoi de l'événement type 0 code 0
 	error_code = SEND_EVENT_REPORT(keyboard_fd, 0);
