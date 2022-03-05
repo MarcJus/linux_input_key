@@ -8,7 +8,7 @@
 
 #define SEND_EVENT_REPORT(fd, value) send_input_event(fd, EV_SYN, SYN_REPORT, value);
 #define SEND_EVENT_MSC(fd) send_input_event(fd, EV_MSC, MSC_SCAN, 0x7000a); // ! Valeur 0x7000a au hasard !
-#define SEND_EVENT_TYPE(fd, key, value) send_input_event(fd, EV_KEY, key, value);
+#define SEND_EVENT_KEY(fd, key, value) send_input_event(fd, EV_KEY, key, value);
 
 #define CHECK_WRITE_RETURN_VALUE(bytes_written) if(bytes_written < 0) return bytes_written;
 
@@ -27,6 +27,14 @@ typedef struct InputDescriptor{
 	int active;
 } InputDescriptor;
 
+typedef struct RepeatKeyArguments{
+
+	int fd;
+
+	ushort key;
+
+} RepeatKeyArguments;
+
 /**
  * @brief Simule la frappe d'une touche unique
  * 
@@ -38,5 +46,9 @@ int send_unique_key(ushort key);
 int send_repeat_key(InputDescriptor *descriptor);
 
 int send_input_event(int fd, int type, int code, int value);
+
+void *thread_send_repeat_key(void *args);
+
+int open_keyboard_fd();
 
 #endif //SEND_INPUT
